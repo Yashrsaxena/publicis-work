@@ -1,4 +1,0 @@
-Hi this is a text file.
-This is a new line to the paragraph.
-
-This line is been added by yash and waiting to be merged
