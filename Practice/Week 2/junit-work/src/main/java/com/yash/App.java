@@ -15,7 +15,10 @@ public class App
     }
 
     public boolean checkForPalindrome(String value) {
-        return value.equals("naman");
+        StringBuffer input = new StringBuffer(value);
+//        String reversedValue = input.reverse().toString();
+//        System.out.println(input+"\n"+input.reverse());
+        return value.equals(input.reverse().toString());
     }
 
     interface Remote{

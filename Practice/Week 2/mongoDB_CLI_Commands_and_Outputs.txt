@@ -1,0 +1,231 @@
+> use publicisyash
+switched to db publicisyash
+> show dbs
+admin   0.000GB
+config  0.000GB
+local   0.000GB
+> db
+publicisyash
+
+//Create - CRUD
+----------------
+
+> db.createCollection('students')
+{ "ok" : 1 }
+> show dbs
+admin         0.000GB
+config        0.000GB
+local         0.000GB
+publicisyash  0.000GB
+> show collections
+students
+> db.students.insert({})
+WriteResult({ "nInserted" : 1 })
+> db.students.find().pretty()
+{ "_id" : ObjectId("62be9166ea0e432b81d6bb05") }
+> db.students.remove()
+uncaught exception: Error: remove needs a query :
+DBCollection.prototype._parseRemove@src/mongo/shell/collection.js:364:15
+DBCollection.prototype.remove@src/mongo/shell/collection.js:394:18
+@(shell):1:1
+> db.students.remove({})
+WriteResult({ "nRemoved" : 1 })
+> db.students.find().pretty()
+> db.students.insert({})
+WriteResult({ "nInserted" : 1 })
+> db.students.remove({})
+WriteResult({ "nRemoved" : 1 })
+> db.students.insert({name:"Yash", domain: "Fullstack", city:"Noida"})
+WriteResult({ "nInserted" : 1 })
+> db.students.find().pretty()
+{
+        "_id" : ObjectId("62be91d4ea0e432b81d6bb07"),
+        "name" : "Yash",
+        "domain" : "Fullstack",
+        "city" : "Noida"
+}
+> db.students.insertMany([{name:"Akshay", domain: "Frontend", city:"Noida"}, {name:"Varun", domain: "Backend", city:"Noida"}])
+{
+        "acknowledged" : true,
+        "insertedIds" : [
+                ObjectId("62be9238ea0e432b81d6bb08"),
+                ObjectId("62be9238ea0e432b81d6bb09")
+        ]
+}
+
+
+
+
+//Read - CRUD 
+--------------
+> db.students.find().pretty()
+{
+        "_id" : ObjectId("62be91d4ea0e432b81d6bb07"),
+        "name" : "Yash",
+        "domain" : "Fullstack",
+        "city" : "Noida"
+}
+{
+        "_id" : ObjectId("62be9238ea0e432b81d6bb08"),
+        "name" : "Akshay",
+        "domain" : "Frontend",
+        "city" : "Noida"
+}
+{
+        "_id" : ObjectId("62be9238ea0e432b81d6bb09"),
+        "name" : "Varun",
+        "domain" : "Backend",
+        "city" : "Noida"
+}
+
+//
+
+> db.students.find({name:"Yash"}).pretty()
+{
+        "_id" : ObjectId("62be91d4ea0e432b81d6bb07"),
+        "name" : "Yash",
+        "domain" : "Fullstack",
+        "city" : "Noida"
+}
+> db.students.find({name:"Yash", domain:"Frontend"}).pretty()
+> db.students.find($or:{[{name:"Yash"},{domain:"Frontend"}]}).pretty()
+uncaught exception: SyntaxError: missing ) after argument list :
+@(shell):1:20
+> db.students.find({$or:[{name:"Yash"},{domain:"Frontend"}]}).pretty()
+{
+        "_id" : ObjectId("62be91d4ea0e432b81d6bb07"),
+        "name" : "Yash",
+        "domain" : "Fullstack",
+        "city" : "Noida"
+}
+{
+        "_id" : ObjectId("62be9238ea0e432b81d6bb08"),
+        "name" : "Akshay",
+        "domain" : "Frontend",
+        "city" : "Noida"
+}
+> db.students.sort({name:1}).pretty()
+uncaught exception: TypeError: db.students.sort is not a function :
+@(shell):1:1
+> db.students.find().sort({name:1}).pretty()
+{
+        "_id" : ObjectId("62be9238ea0e432b81d6bb08"),
+        "name" : "Akshay",
+        "domain" : "Frontend",
+        "city" : "Noida"
+}
+{
+        "_id" : ObjectId("62be9238ea0e432b81d6bb09"),
+        "name" : "Varun",
+        "domain" : "Backend",
+        "city" : "Noida"
+}
+{
+        "_id" : ObjectId("62be91d4ea0e432b81d6bb07"),
+        "name" : "Yash",
+        "domain" : "Fullstack",
+        "city" : "Noida"
+}
+> db.students.find().count()
+3
+
+
+
+
+//Update - CRUD
+----------------
+
+>db.students.update({name:'Yash'},{name:"Yash Raj"})
+WriteResult({ "nMatched" : 1, "nUpserted" : 0, "nModified" : 1 })
+> db.students.find().count()
+3
+> db.students.find()
+{ "_id" : ObjectId("62be91d4ea0e432b81d6bb07"), "name" : "Yash Raj" }
+{ "_id" : ObjectId("62be9238ea0e432b81d6bb08"), "name" : "Akshay", "domain" : "Frontend", "city" : "Noida" }
+{ "_id" : ObjectId("62be9238ea0e432b81d6bb09"), "name" : "Varun", "domain" : "Backend", "city" : "Noida" }
+> db.students.update({name:'Yash'},{name:"Yash Raj", domain:"Fullstack", city:"Noida"})
+WriteResult({ "nMatched" : 0, "nUpserted" : 0, "nModified" : 0 })
+> db.students.update({name:'Yash Raj'},{name:"Yash Raj", domain:"Fullstack", city:"Noida"})
+WriteResult({ "nMatched" : 1, "nUpserted" : 0, "nModified" : 1 })
+> db.students.find()
+{ "_id" : ObjectId("62be91d4ea0e432b81d6bb07"), "name" : "Yash Raj", "domain" : "Fullstack", "city" : "Noida" }
+{ "_id" : ObjectId("62be9238ea0e432b81d6bb08"), "name" : "Akshay", "domain" : "Frontend", "city" : "Noida" }
+{ "_id" : ObjectId("62be9238ea0e432b81d6bb09"), "name" : "Varun", "domain" : "Backend", "city" : "Noida" }
+> db.students.update({name:'Yash Raj'},{$set{name:"Yash", domain:"Fullstack", city:"Noida"}})
+uncaught exception: SyntaxError: missing : after property id :
+@(shell):1:42
+> db.students.update({name:'Yash Raj'},{$set:{name:"Yash"}})
+WriteResult({ "nMatched" : 1, "nUpserted" : 0, "nModified" : 1 })
+> db.students.find()
+{ "_id" : ObjectId("62be91d4ea0e432b81d6bb07"), "name" : "Yash", "domain" : "Fullstack", "city" : "Noida" }
+{ "_id" : ObjectId("62be9238ea0e432b81d6bb08"), "name" : "Akshay", "domain" : "Frontend", "city" : "Noida" }
+{ "_id" : ObjectId("62be9238ea0e432b81d6bb09"), "name" : "Varun", "domain" : "Backend", "city" : "Noida" }
+> db.students.update({name:'Yash Raj'},{$rename:{city:"Work Place"}})
+WriteResult({ "nMatched" : 0, "nUpserted" : 0, "nModified" : 0 })
+> db.students.update({name:'Yash'},{$rename:{city:"Work Place"}})
+WriteResult({ "nMatched" : 1, "nUpserted" : 0, "nModified" : 1 })
+> db.students.find()
+{ "_id" : ObjectId("62be91d4ea0e432b81d6bb07"), "name" : "Yash", "domain" : "Fullstack", "Work Place" : "Noida" }
+{ "_id" : ObjectId("62be9238ea0e432b81d6bb08"), "name" : "Akshay", "domain" : "Frontend", "city" : "Noida" }
+{ "_id" : ObjectId("62be9238ea0e432b81d6bb09"), "name" : "Varun", "domain" : "Backend", "city" : "Noida" }
+> db.students.update({$rename:{city:"Work Place"})
+...
+...
+> db.students.find()
+{ "_id" : ObjectId("62be91d4ea0e432b81d6bb07"), "name" : "Yash", "domain" : "Fullstack", "Work Place" : "Noida" }
+{ "_id" : ObjectId("62be9238ea0e432b81d6bb08"), "name" : "Akshay", "domain" : "Frontend", "city" : "Noida" }
+{ "_id" : ObjectId("62be9238ea0e432b81d6bb09"), "name" : "Varun", "domain" : "Backend", "city" : "Noida" }
+> db.students.update({name:},{$rename:{city:"Work Place"}})
+uncaught exception: SyntaxError: expected expression, got '}' :
+@(shell):1:25
+> db.students.updateMany({},{$rename:{city:"Work Place"}})
+{ "acknowledged" : true, "matchedCount" : 3, "modifiedCount" : 2 }
+> db.students.find()
+{ "_id" : ObjectId("62be91d4ea0e432b81d6bb07"), "name" : "Yash", "domain" : "Fullstack", "Work Place" : "Noida" }
+{ "_id" : ObjectId("62be9238ea0e432b81d6bb08"), "name" : "Akshay", "domain" : "Frontend", "Work Place" : "Noida" }
+{ "_id" : ObjectId("62be9238ea0e432b81d6bb09"), "name" : "Varun", "domain" : "Backend", "Work Place" : "Noida" }
+>
+
+
+//Delete - CRUD
+----------------
+
+> db.students.deleteOne({name:"Yash"})
+{ "acknowledged" : true, "deletedCount" : 1 }
+> db.students.find()
+{ "_id" : ObjectId("62be9238ea0e432b81d6bb08"), "name" : "Akshay", "domain" : "Frontend", "Work Place" : "Noida" }
+{ "_id" : ObjectId("62be9238ea0e432b81d6bb09"), "name" : "Varun", "domain" : "Backend", "Work Place" : "Noida" }
+> db.students.remove({name:"Akshay"})
+WriteResult({ "nRemoved" : 1 })
+> db.students.insert({name:"Yash", domain: "Fullstack", Work Place:"Noida"})
+uncaught exception: SyntaxError: missing : after property id :
+@(shell):1:59
+> db.students.insert({name:"Yash", domain: "Fullstack", "Work Place":"Noida"})
+WriteResult({ "nInserted" : 1 })
+> db.students.find()
+{ "_id" : ObjectId("62be9238ea0e432b81d6bb09"), "name" : "Varun", "domain" : "Backend", "Work Place" : "Noida" }
+{ "_id" : ObjectId("62beb276ea0e432b81d6bb0a"), "name" : "Yash", "domain" : "Fullstack", "Work Place" : "Noida" }
+> db.students.deleteMany({})
+{ "acknowledged" : true, "deletedCount" : 2 }
+> db.students.find()
+> db.students.insertMany({name:"Yash", domain: "Fullstack", "Work Place":"Noida"}, {name:"Varun", domain: "Backend", "Work Place":"Noida"}, {name:"Akshay", domain: "Frontend", "Work Place":"Noida"})
+uncaught exception: TypeError: documents.map is not a function :
+DBCollection.prototype.insertMany@src/mongo/shell/crud_api.js:307:17
+@(shell):1:1
+> db.students.insertMany([{name:"Yash", domain: "Fullstack", "Work Place":"Noida"}, {name:"Varun", domain: "Backend", "Work Place":"Noida"}, {name:"Akshay", domain: "Frontend", "Work Place":"Noida"}])
+{
+        "acknowledged" : true,
+        "insertedIds" : [
+                ObjectId("62beb2f3ea0e432b81d6bb0b"),
+                ObjectId("62beb2f3ea0e432b81d6bb0c"),
+                ObjectId("62beb2f3ea0e432b81d6bb0d")
+        ]
+}
+> db.students.find()
+{ "_id" : ObjectId("62beb2f3ea0e432b81d6bb0b"), "name" : "Yash", "domain" : "Fullstack", "Work Place" : "Noida" }
+{ "_id" : ObjectId("62beb2f3ea0e432b81d6bb0c"), "name" : "Varun", "domain" : "Backend", "Work Place" : "Noida" }
+{ "_id" : ObjectId("62beb2f3ea0e432b81d6bb0d"), "name" : "Akshay", "domain" : "Frontend", "Work Place" : "Noida" }
+> db.students.remove({})
+WriteResult({ "nRemoved" : 3 })
+> db.students.find()
+>
